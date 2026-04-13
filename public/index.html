@@ -3,150 +3,602 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAEP — Gerenciamento de Tarefas</title>
+<title>SAEP — Sistema de Gerenciamento de Tarefas</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* NAV */
-  nav { background: #0056b3; color: white; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
-  nav h1 { font-size: 18px; font-weight: bold; }
-  nav span { font-size: 13px; opacity: 0.7; }
-  .nav-links { margin-left: auto; display: flex; gap: 8px; }
-  .nav-btn { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-  .nav-btn:hover { background: rgba(255,255,255,0.25); }
-  .nav-btn.active { background: white; color: #0056b3; font-weight: bold; }
-
-  /* PAGES */
-  .page { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
-  .page.active { display: block; }
-
-  /* CARDS */
-  .card { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.0); margin-bottom: 20px; }
-  .card h2 { font-size: 17px; color: #0056b3; margin-bottom: 18px; border-bottom: 2px solid #e8ecf0; padding-bottom: 10px; }
-
-  /* FORM */
-  .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px; }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 9px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none;
+  :root {
+    --blue:      #0056b3;
+    --blue-dark: #003d82;
+    --blue-mid:  #1a6cc4;
+    --blue-light:#e8f0fb;
+    --blue-bg:   #f0f4fa;
+    --white:     #ffffff;
+    --black:     #000000;
+    --gray-100:  #f4f6f9;
+    --gray-200:  #e9ecef;
+    --gray-300:  #ced4da;
+    --gray-500:  #6c757d;
+    --gray-700:  #495057;
+    --success:   #1a8a3a;
+    --success-bg:#d4edda;
+    --error:     #b02020;
+    --error-bg:  #f8d7da;
+    --warn:      #856404;
+    --warn-bg:   #fff3cd;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.10);
+    --shadow:    0 2px 8px rgba(0,0,0,0.12);
+    --shadow-lg: 0 4px 18px rgba(0,0,0,0.14);
+    --radius:    8px;
+    --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1e3a5f; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-  /* BUTTONS */
-  .btn { padding: 9px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
-  .btn-primary { background: #112b4d; color: rgb(255, 255, 255); }
-  .btn-primary:hover { background: #16304f; }
-  .btn-danger { background: #e74c3c; color: white; font-size: 12px; padding: 5px 10px; }
-  .btn-danger:hover { background: #c0392b; }
-  .btn-edit { background: #2980b9; color: white; font-size: 12px; padding: 5px 10px; }
-  .btn-edit:hover { background: #1f6391; }
+  html { scroll-behavior: smooth; }
 
-  /* ALERT */
-  .alert { padding: 10px 16px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; display: none; }
-  .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
-  .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+  body {
+    font-family: var(--font);
+    background: var(--gray-100);
+    color: var(--gray-700);
+    min-height: 100vh;
+    font-size: 14px;
+  }
 
-  /* KANBAN */
-  .kanban { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-  .kanban-col { background: #e8ecf0; border-radius: 10px; padding: 14px; min-height: 300px; }
-  .kanban-col h3 { font-size: 14px; font-weight: bold; margin-bottom: 12px; padding: 6px 10px; border-radius: 6px; text-align: center; }
-  .col-afazer h3 { background: #ffc107; color: #5a3e00; }
-  .col-fazendo h3 { background: #17a2b8; color: white; }
-  .col-pronto h3 { background: #28a745; color: white; }
+  /* ─── NAV ─────────────────────────────────────── */
+  nav {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
+    color: var(--white);
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    height: 60px;
+    box-shadow: 0 2px 10px rgba(0,0,86,0.18);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
 
-  .task-card { background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 4px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .task-card.alta { border-left-color: #e74c3c; }
-  .task-card.media { border-left-color: #f39c12; }
-  .task-card.baixa { border-left-color: #27ae60; }
-  .task-card p { font-size: 13px; margin: 3px 0; color: #555; }
-  .task-card .desc { font-size: 14px; font-weight: bold; color: #333; margin-bottom: 6px; }
-  .task-card .actions { display: flex; gap: 6px; margin-top: 8px; }
-  .task-card select { font-size: 12px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9; }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
-  .badge-alta { background: #fde8e8; color: #c0392b; }
-  .badge-media { background: #fef6e4; color: #b7770d; }
-  .badge-baixa { background: #e4f5e9; color: #1d6e3a; }
+  .nav-logo {
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
 
-  /* USER TABLE */
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { background: #133663; color: rgb(255, 255, 255); padding: 10px 12px; text-align: left; }
-  td { padding: 9px 12px; border-bottom: 1px solid #eee; }
-  tr:hover td { background: #f9f9f9; }
-  .empty-msg { text-align: center; color: #999; font-size: 14px; padding: 30px 0; }
+  .nav-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
 
-  /* MODAL */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: flex-start; padding-top: 60px; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: white; border-radius: 10px; padding: 28px; width: 500px; max-width: 95vw; position: relative; max-height: 85vh; overflow-y: auto; }
-  .modal h2 { font-size: 17px; color: #1b385e; margin-bottom: 18px; }
-  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
+  .nav-sub {
+    font-size: 11px;
+    opacity: 0.65;
+    font-weight: 400;
+    display: block;
+    line-height: 1.2;
+  }
 
-  /* CONFIRM DIALOG */
-  .confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; justify-content: center; align-items: center; }
-  .confirm-overlay.open { display: flex; }
-  .confirm-box { background: white; border-radius: 10px; padding: 28px; width: 380px; text-align: center; }
-  .confirm-box p { font-size: 15px; margin-bottom: 20px; color: #333; }
+  .nav-sep {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.2);
+    flex-shrink: 0;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .nav-btn {
+    background: rgba(255,255,255,0.12);
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.22);
+    padding: 7px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font);
+    font-weight: 500;
+    transition: background 0.18s, border-color 0.18s, transform 0.1s;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .nav-btn:hover {
+    background: rgba(255,255,255,0.22);
+    transform: translateY(-1px);
+  }
+
+  .nav-btn.active {
+    background: var(--white);
+    color: var(--blue);
+    font-weight: 700;
+    border-color: var(--white);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ─── PAGES ───────────────────────────────────── */
+  .page { display: none; padding: 28px 24px 60px; max-width: 1120px; margin: 0 auto; }
+  .page.active { display: block; animation: fadeIn 0.25s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--blue-light);
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* ─── CARDS ───────────────────────────────────── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+    border: 1px solid var(--gray-200);
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--blue-light);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ─── FORMS ───────────────────────────────────── */
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-700);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--gray-700);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0,86,179,0.12);
+  }
+
+  .form-group textarea { resize: vertical; line-height: 1.5; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  .form-actions { margin-top: 6px; display: flex; gap: 10px; align-items: center; }
+
+  /* ─── BUTTONS ─────────────────────────────────── */
+  .btn {
+    padding: 9px 22px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-family: var(--font);
+    font-weight: 600;
+    transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  .btn:active { transform: none; }
+
+  .btn-primary   { background: var(--blue); color: var(--white); }
+  .btn-primary:hover { background: var(--blue-dark); }
+
+  .btn-secondary { background: var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { background: var(--gray-300); }
+
+  .btn-danger    { background: #dc3545; color: var(--white); font-size: 12px; padding: 5px 12px; }
+  .btn-danger:hover { background: #b02535; }
+
+  .btn-edit      { background: var(--blue-mid); color: var(--white); font-size: 12px; padding: 5px 12px; }
+  .btn-edit:hover { background: var(--blue-dark); }
+
+  .btn-sm { font-size: 12px; padding: 5px 12px; }
+
+  /* ─── ALERTS ──────────────────────────────────── */
+  .alert {
+    padding: 11px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13.5px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .alert.show      { display: flex; }
+  .alert.success   { background: var(--success-bg); color: var(--success);  border: 1px solid #b7dfbd; }
+  .alert.error     { background: var(--error-bg);   color: var(--error);    border: 1px solid #f5c2c7; }
+  .alert.warning   { background: var(--warn-bg);    color: var(--warn);     border: 1px solid #ffd47e; }
+
+  /* ─── KANBAN ──────────────────────────────────── */
+  .kanban-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  .stat-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .stat-icon.afazer  { background: #fff3cd; }
+  .stat-icon.fazendo { background: #cce5ff; }
+  .stat-icon.pronto  { background: #d4edda; }
+
+  .stat-info { flex: 1; }
+  .stat-num  { font-size: 26px; font-weight: 800; color: var(--blue-dark); line-height: 1; }
+  .stat-lbl  { font-size: 11.5px; color: var(--gray-500); font-weight: 600; margin-top: 2px; }
+
+  .kanban-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .kanban-col {
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    padding: 14px;
+    min-height: 200px;
+    border: 1px solid var(--gray-200);
+  }
+
+  .kanban-col-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .col-afazer  .kanban-col-header { background: #ffc107; color: #5a3e00; }
+  .col-fazendo .kanban-col-header { background: #0082c8; color: var(--white); }
+  .col-pronto  .kanban-col-header { background: #28a745; color: var(--white); }
+
+  .col-badge {
+    background: rgba(0,0,0,0.12);
+    border-radius: 20px;
+    padding: 1px 9px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .task-card {
+    background: var(--white);
+    border-radius: 7px;
+    padding: 13px 14px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--gray-300);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.18s, transform 0.18s;
+  }
+
+  .task-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+
+  .task-card.alta   { border-left-color: #dc3545; }
+  .task-card.media  { border-left-color: #fd7e14; }
+  .task-card.baixa  { border-left-color: #28a745; }
+
+  .task-desc {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .task-meta { font-size: 12.5px; color: var(--gray-500); margin: 3px 0; display: flex; align-items: center; gap: 5px; }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-alta   { background: #fde8e8; color: #c0392b; border: 1px solid #f5c6c6; }
+  .badge-media  { background: #fff0e0; color: #c35a00; border: 1px solid #ffd9b3; }
+  .badge-baixa  { background: #e4f5e9; color: #1a7a2e; border: 1px solid #b7dfc0; }
+
+  .task-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .task-actions select {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 5px;
+    background: var(--white);
+    color: var(--gray-700);
+    font-family: var(--font);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .task-actions select:focus { border-color: var(--blue); }
+
+  .empty-col {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    padding: 30px 10px;
+    font-style: italic;
+  }
+
+  /* ─── TABLE ───────────────────────────────────── */
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 6px;
+    border: 1px solid var(--gray-200);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead { background: var(--blue); color: var(--white); }
+  th { padding: 11px 14px; text-align: left; font-weight: 700; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--gray-200); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--blue-light); }
+
+  .empty-msg { text-align: center; color: var(--gray-500); font-size: 13px; padding: 32px; font-style: italic; }
+
+  /* ─── MODAL ───────────────────────────────────── */
+  .modal-overlay {
+    display: none; position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.48);
+    z-index: 200;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 16px 16px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 540px;
+    max-width: 100%;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+  }
+
+  .modal-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--blue-light);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--gray-200); border: none;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    cursor: pointer; font-size: 14px; color: var(--gray-700);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .modal-close:hover { background: var(--gray-300); }
+
+  /* ─── CONFIRM ─────────────────────────────────── */
+  .confirm-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 300;
+    justify-content: center; align-items: center;
+  }
+
+  .confirm-overlay.open { display: flex; animation: fadeIn 0.18s ease; }
+
+  .confirm-box {
+    background: var(--white); border-radius: var(--radius);
+    padding: 30px 28px; width: 380px; max-width: 95vw;
+    text-align: center; box-shadow: var(--shadow-lg);
+  }
+
+  .confirm-icon { font-size: 40px; margin-bottom: 14px; }
+  .confirm-title { font-size: 16px; font-weight: 700; color: var(--black); margin-bottom: 8px; }
+  .confirm-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 24px; }
   .confirm-btns { display: flex; gap: 10px; justify-content: center; }
-  .btn-cancel { background: #e0e0e0; color: #333; }
+
+  /* ─── RESPONSIVO ──────────────────────────────── */
+  @media (max-width: 800px) {
+    .kanban-board { grid-template-columns: 1fr; }
+    .kanban-stats { grid-template-columns: 1fr; }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    nav { padding: 0 14px; gap: 8px; }
+    .nav-title { font-size: 14px; }
+    .nav-btn { padding: 6px 10px; font-size: 12px; }
+    .page { padding: 16px 12px 40px; }
+  }
 </style>
 </head>
 <body>
 
+<!-- ══════════════ NAV ══════════════ -->
 <nav>
-  <h1>📋 SAEP</h1>
-  <span>Sistema de Gerenciamento de Tarefas</span>
+  <div class="nav-brand">
+    <div class="nav-logo">📋</div>
+    <div>
+      <div class="nav-title">SAEP</div>
+      <span class="nav-sub">Gerenciamento de Tarefas</span>
+    </div>
+  </div>
+  <div class="nav-sep"></div>
   <div class="nav-links">
-    <button class="nav-btn active" onclick="showPage('kanban')">🗂 Tarefas</button>
-    <button class="nav-btn" onclick="showPage('cad-tarefa')">➕ Nova Tarefa</button>
-    <button class="nav-btn" onclick="showPage('cad-usuario')">👤 Usuários</button>
+    <button class="nav-btn active" id="btn-nav-kanban"    onclick="showPage('kanban',    this)">📂 Tarefas</button>
+    <button class="nav-btn"        id="btn-nav-cad-tarefa" onclick="showPage('cad-tarefa', this)">➕ Nova Tarefa</button>
+    <button class="nav-btn"        id="btn-nav-cad-usuario" onclick="showPage('cad-usuario', this)">👤 Usuários</button>
   </div>
 </nav>
 
-<!-- PAGE: KANBAN -->
+<!-- ══════════════ PAGE: KANBAN ══════════════ -->
 <div id="page-kanban" class="page active">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-    <h2 style="color:#1e3a5f;">Gerenciamento de Tarefas</h2>
+  <div class="page-header">
+    <h1 class="page-title">🗂️ Gerenciamento de Tarefas</h1>
   </div>
-  <div class="kanban">
+
+  <!-- Stats -->
+  <div class="kanban-stats">
+    <div class="stat-card">
+      <div class="stat-icon afazer">📌</div>
+      <div class="stat-info">
+        <div class="stat-num" id="stat-afazer">0</div>
+        <div class="stat-lbl">A Fazer</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon fazendo">⚙️</div>
+      <div class="stat-info">
+        <div class="stat-num" id="stat-fazendo">0</div>
+        <div class="stat-lbl">Fazendo</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon pronto">✅</div>
+      <div class="stat-info">
+        <div class="stat-num" id="stat-pronto">0</div>
+        <div class="stat-lbl">Prontas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Board -->
+  <div class="kanban-board">
     <div class="kanban-col col-afazer">
-      <h3>📌 A Fazer</h3>
+      <div class="kanban-col-header">
+        <span>📌 A Fazer</span>
+        <span class="col-badge" id="badge-afazer">0</span>
+      </div>
       <div id="col-afazer"></div>
     </div>
     <div class="kanban-col col-fazendo">
-      <h3>⚙️ Fazendo</h3>
+      <div class="kanban-col-header">
+        <span>⚙️ Fazendo</span>
+        <span class="col-badge" id="badge-fazendo">0</span>
+      </div>
       <div id="col-fazendo"></div>
     </div>
     <div class="kanban-col col-pronto">
-      <h3>✅ Pronto</h3>
+      <div class="kanban-col-header">
+        <span>✅ Pronto</span>
+        <span class="col-badge" id="badge-pronto">0</span>
+      </div>
       <div id="col-pronto"></div>
     </div>
   </div>
 </div>
 
-<!-- PAGE: CAD TAREFA -->
+<!-- ══════════════ PAGE: CAD TAREFA ══════════════ -->
 <div id="page-cad-tarefa" class="page">
+  <div class="page-header">
+    <h1 class="page-title">➕ Cadastro de Tarefa</h1>
+  </div>
   <div class="card">
-    <h2>📋 Cadastro de Tarefa</h2>
+    <div class="card-title">📋 Dados da Tarefa</div>
     <div id="alert-tarefa" class="alert"></div>
     <div class="form-group">
       <label>Descrição da Tarefa *</label>
-      <textarea id="t-desc" rows="2" placeholder="Descreva a tarefa..."></textarea>
+      <textarea id="t-desc" rows="3" placeholder="Descreva detalhadamente a tarefa..."></textarea>
     </div>
     <div class="form-row">
       <div class="form-group">
         <label>Setor *</label>
-        <input id="t-setor" type="text" placeholder="Ex: Produção, TI, RH..." />
+        <input id="t-setor" type="text" placeholder="Ex: Produção, TI, RH, Logística..." />
       </div>
       <div class="form-group">
         <label>Prioridade *</label>
         <select id="t-prioridade">
           <option value="">-- Selecione --</option>
-          <option value="baixa">Baixa</option>
-          <option value="media">Média</option>
-          <option value="alta">Alta</option>
+          <option value="baixa">🟢 Baixa</option>
+          <option value="media">🟡 Média</option>
+          <option value="alta">🔴 Alta</option>
         </select>
       </div>
     </div>
@@ -156,46 +608,67 @@
         <option value="">-- Selecione um usuário --</option>
       </select>
     </div>
-    <button class="btn btn-primary" onclick="cadastrarTarefa()">💾 Cadastrar Tarefa</button>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="cadastrarTarefa()">💾 Cadastrar Tarefa</button>
+      <button class="btn btn-secondary" onclick="limparFormTarefa()">✕ Limpar</button>
+    </div>
   </div>
 </div>
 
-<!-- PAGE: CAD USUARIO -->
+<!-- ══════════════ PAGE: CAD USUARIO ══════════════ -->
 <div id="page-cad-usuario" class="page">
+  <div class="page-header">
+    <h1 class="page-title">👤 Gerenciar Usuários</h1>
+  </div>
+
   <div class="card">
-    <h2>👤 Cadastro de Usuário</h2>
+    <div class="card-title">👤 Cadastro de Usuário</div>
     <div id="alert-usuario" class="alert"></div>
     <div class="form-row">
       <div class="form-group">
-        <label>Nome *</label>
-        <input id="u-nome" type="text" placeholder="Nome completo" />
+        <label>Nome Completo *</label>
+        <input id="u-nome" type="text" placeholder="Nome completo do colaborador" />
       </div>
       <div class="form-group">
         <label>E-mail *</label>
-        <input id="u-email" type="email" placeholder="email@exemplo.com" />
+        <input id="u-email" type="email" placeholder="email@empresa.com" />
       </div>
     </div>
-    <button class="btn btn-primary" onclick="cadastrarUsuario()">💾 Cadastrar Usuário</button>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="cadastrarUsuario()">💾 Cadastrar Usuário</button>
+      <button class="btn btn-secondary" onclick="limparFormUsuario()">✕ Limpar</button>
+    </div>
   </div>
 
   <div class="card">
-    <h2>📄 Usuários Cadastrados</h2>
-    <table id="tabela-usuarios">
-      <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Ações</th></tr></thead>
-      <tbody id="tbody-usuarios"></tbody>
-    </table>
+    <div class="card-title">📄 Usuários Cadastrados</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Tarefas</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-usuarios"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- MODAL EDITAR TAREFA -->
+<!-- ══════════════ MODAL EDITAR ══════════════ -->
 <div class="modal-overlay" id="modal-editar">
   <div class="modal">
     <button class="modal-close" onclick="fecharModal()">✕</button>
-    <h2>✏️ Editar Tarefa</h2>
+    <div class="modal-header">✏️ Editar Tarefa</div>
     <input type="hidden" id="edit-id" />
+    <div id="alert-editar" class="alert"></div>
     <div class="form-group">
       <label>Descrição da Tarefa *</label>
-      <textarea id="edit-desc" rows="2"></textarea>
+      <textarea id="edit-desc" rows="3"></textarea>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -205,123 +678,177 @@
       <div class="form-group">
         <label>Prioridade *</label>
         <select id="edit-prioridade">
-          <option value="baixa">Baixa</option>
-          <option value="media">Média</option>
-          <option value="alta">Alta</option>
+          <option value="baixa">🟢 Baixa</option>
+          <option value="media">🟡 Média</option>
+          <option value="alta">🔴 Alta</option>
         </select>
       </div>
     </div>
-    <div class="form-group">
-      <label>Status</label>
-      <select id="edit-status">
-        <option value="a fazer">A Fazer</option>
-        <option value="fazendo">Fazendo</option>
-        <option value="pronto">Pronto</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Status</label>
+        <select id="edit-status">
+          <option value="a fazer">📌 A Fazer</option>
+          <option value="fazendo">⚙️ Fazendo</option>
+          <option value="pronto">✅ Pronto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Usuário Responsável *</label>
+        <select id="edit-usuario"></select>
+      </div>
     </div>
-    <div class="form-group">
-      <label>Usuário Responsável *</label>
-      <select id="edit-usuario"></select>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+      <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
     </div>
-    <button class="btn btn-primary" onclick="salvarEdicao()">💾 Salvar Alterações</button>
   </div>
 </div>
 
-<!-- MODAL CONFIRMAÇÃO EXCLUSÃO -->
+<!-- ══════════════ CONFIRM EXCLUIR ══════════════ -->
 <div class="confirm-overlay" id="confirm-del">
   <div class="confirm-box">
-    <p>⚠️ Deseja realmente <strong>excluir</strong> esta tarefa?<br><small style="color:#888">Essa ação não poderá ser desfeita.</small></p>
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">Excluir Tarefa</div>
+    <p class="confirm-sub">Deseja realmente excluir esta tarefa?<br>Essa ação não poderá ser desfeita.</p>
     <div class="confirm-btns">
-      <button class="btn btn-cancel" onclick="fecharConfirm()">Cancelar</button>
-      <button class="btn btn-danger" onclick="confirmarExclusao()">Excluir</button>
+      <button class="btn btn-secondary" onclick="fecharConfirm()">Cancelar</button>
+      <button class="btn btn-danger"    onclick="confirmarExclusao()">🗑 Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CONFIRM EXCLUIR USUARIO ══════════════ -->
+<div class="confirm-overlay" id="confirm-del-user">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">Excluir Usuário</div>
+    <p class="confirm-sub">Deseja realmente excluir este usuário?<br>Essa ação não poderá ser desfeita.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" onclick="fecharConfirmUser()">Cancelar</button>
+      <button class="btn btn-danger"    onclick="confirmarExclusaoUser()">🗑 Excluir</button>
     </div>
   </div>
 </div>
 
 <script>
-// ========== BANCO DE DADOS (localStorage) ==========
-function getUsuarios() { return JSON.parse(localStorage.getItem('saep_usuarios') || '[]'); }
-function setUsuarios(d) { localStorage.setItem('saep_usuarios', JSON.stringify(d)); }
-function getTarefas() { return JSON.parse(localStorage.getItem('saep_tarefas') || '[]'); }
-function setTarefas(d) { localStorage.setItem('saep_tarefas', JSON.stringify(d)); }
-function nextId(arr) { return arr.length > 0 ? Math.max(...arr.map(x => x.id)) + 1 : 1; }
+// ═══════════════════════════════════════
+// PERSISTÊNCIA (localStorage)
+// ═══════════════════════════════════════
+const getUsuarios = () => JSON.parse(localStorage.getItem('saep_usuarios') || '[]');
+const setUsuarios = d  => localStorage.setItem('saep_usuarios', JSON.stringify(d));
+const getTarefas  = () => JSON.parse(localStorage.getItem('saep_tarefas')  || '[]');
+const setTarefas  = d  => localStorage.setItem('saep_tarefas',  JSON.stringify(d));
+const nextId = arr => arr.length > 0 ? Math.max(...arr.map(x => x.id)) + 1 : 1;
 
-// ========== NAVEGAÇÃO ==========
-function showPage(name) {
+// ═══════════════════════════════════════
+// NAVEGAÇÃO
+// ═══════════════════════════════════════
+function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  event.target.classList.add('active');
-  if (name === 'kanban') renderKanban();
-  if (name === 'cad-tarefa') preencherSelectUsuarios('t-usuario');
-  if (name === 'cad-usuario') renderTabelaUsuarios();
+  if (btn) btn.classList.add('active');
+
+  if (name === 'kanban')      renderKanban();
+  if (name === 'cad-tarefa')  { preencherSelectUsuarios('t-usuario'); clearAlert('alert-tarefa'); }
+  if (name === 'cad-usuario') { renderTabelaUsuarios(); clearAlert('alert-usuario'); }
 }
 
-// ========== USUÁRIOS ==========
+// ═══════════════════════════════════════
+// USUÁRIOS
+// ═══════════════════════════════════════
 function cadastrarUsuario() {
-  const nome = document.getElementById('u-nome').value.trim();
+  const nome  = document.getElementById('u-nome').value.trim();
   const email = document.getElementById('u-email').value.trim();
-  const alerta = document.getElementById('alert-usuario');
+  const alerta = 'alert-usuario';
 
-  if (!nome || !email) { showAlert(alerta, 'error', 'Preencha todos os campos.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert(alerta, 'error', 'E-mail inválido.'); return; }
+  if (!nome || !email)
+    return showAlert(alerta, 'error', '⚠ Preencha todos os campos obrigatórios.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return showAlert(alerta, 'error', '⚠ E-mail inválido. Verifique o formato.');
 
   const usuarios = getUsuarios();
-  if (usuarios.find(u => u.email === email)) { showAlert(alerta, 'error', 'E-mail já cadastrado.'); return; }
+  if (usuarios.find(u => u.email.toLowerCase() === email.toLowerCase()))
+    return showAlert(alerta, 'error', '⚠ Este e-mail já está cadastrado.');
 
   usuarios.push({ id: nextId(usuarios), nome, email });
   setUsuarios(usuarios);
-
-  document.getElementById('u-nome').value = '';
-  document.getElementById('u-email').value = '';
+  limparFormUsuario();
   showAlert(alerta, 'success', '✅ Usuário cadastrado com sucesso!');
   renderTabelaUsuarios();
 }
 
+function limparFormUsuario() {
+  document.getElementById('u-nome').value = '';
+  document.getElementById('u-email').value = '';
+}
+
 function renderTabelaUsuarios() {
   const usuarios = getUsuarios();
-  const tbody = document.getElementById('tbody-usuarios');
+  const tarefas  = getTarefas();
+  const tbody    = document.getElementById('tbody-usuarios');
+
   if (usuarios.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" class="empty-msg">Nenhum usuário cadastrado.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Nenhum usuário cadastrado.</td></tr>';
     return;
   }
-  tbody.innerHTML = usuarios.map(u => `
-    <tr>
-      <td>#${u.id}</td>
-      <td>${u.nome}</td>
-      <td>${u.email}</td>
-      <td><button class="btn btn-danger" onclick="excluirUsuario(${u.id})">Excluir</button></td>
-    </tr>`).join('');
+
+  tbody.innerHTML = usuarios.map(u => {
+    const qtd = tarefas.filter(t => t.id_usuario === u.id).length;
+    return `<tr>
+      <td><strong>#${u.id}</strong></td>
+      <td>${escHtml(u.nome)}</td>
+      <td>${escHtml(u.email)}</td>
+      <td><span class="badge" style="background:#e8f0fb;color:#0056b3;border:1px solid #b8d0f0">${qtd} tarefa${qtd !== 1 ? 's' : ''}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="abrirConfirmUser(${u.id})">🗑 Excluir</button></td>
+    </tr>`;
+  }).join('');
 }
 
-function excluirUsuario(id) {
-  let usuarios = getUsuarios();
+let userParaExcluir = null;
+function abrirConfirmUser(id) {
+  userParaExcluir = id;
+  document.getElementById('confirm-del-user').classList.add('open');
+}
+function fecharConfirmUser() {
+  userParaExcluir = null;
+  document.getElementById('confirm-del-user').classList.remove('open');
+}
+function confirmarExclusaoUser() {
+  if (!userParaExcluir) return;
   const tarefas = getTarefas();
-  if (tarefas.find(t => t.id_usuario === id)) {
-    alert('Este usuário possui tarefas vinculadas. Remova as tarefas primeiro.');
+  if (tarefas.find(t => t.id_usuario === userParaExcluir)) {
+    fecharConfirmUser();
+    showAlert('alert-usuario', 'error', '⚠ Este usuário possui tarefas vinculadas. Remova-as primeiro.');
     return;
   }
-  setUsuarios(usuarios.filter(u => u.id !== id));
+  setUsuarios(getUsuarios().filter(u => u.id !== userParaExcluir));
+  fecharConfirmUser();
   renderTabelaUsuarios();
+  showAlert('alert-usuario', 'success', '✅ Usuário excluído com sucesso!');
 }
 
-// ========== TAREFAS ==========
+// ═══════════════════════════════════════
+// TAREFAS
+// ═══════════════════════════════════════
 function preencherSelectUsuarios(selectId) {
   const sel = document.getElementById(selectId);
-  const usuarios = getUsuarios();
   const current = sel.value;
+  const usuarios = getUsuarios();
   sel.innerHTML = '<option value="">-- Selecione um usuário --</option>' +
-    usuarios.map(u => `<option value="${u.id}" ${u.id == current ? 'selected' : ''}>${u.nome}</option>`).join('');
+    usuarios.map(u => `<option value="${u.id}" ${u.id == current ? 'selected' : ''}>${escHtml(u.nome)}</option>`).join('');
 }
 
 function cadastrarTarefa() {
-  const desc = document.getElementById('t-desc').value.trim();
-  const setor = document.getElementById('t-setor').value.trim();
+  const desc       = document.getElementById('t-desc').value.trim();
+  const setor      = document.getElementById('t-setor').value.trim();
   const prioridade = document.getElementById('t-prioridade').value;
   const id_usuario = parseInt(document.getElementById('t-usuario').value);
-  const alerta = document.getElementById('alert-tarefa');
+  const alerta     = 'alert-tarefa';
 
-  if (!desc || !setor || !prioridade || !id_usuario) { showAlert(alerta, 'error', 'Preencha todos os campos.'); return; }
+  if (!desc || !setor || !prioridade || !id_usuario)
+    return showAlert(alerta, 'error', '⚠ Preencha todos os campos obrigatórios.');
 
   const tarefas = getTarefas();
   tarefas.push({
@@ -331,50 +858,72 @@ function cadastrarTarefa() {
     setor,
     prioridade,
     status: 'a fazer',
-    data: new Date().toLocaleDateString('pt-BR')
+    data_cadastro: new Date().toLocaleDateString('pt-BR')
   });
   setTarefas(tarefas);
-
-  document.getElementById('t-desc').value = '';
-  document.getElementById('t-setor').value = '';
-  document.getElementById('t-prioridade').value = '';
-  document.getElementById('t-usuario').value = '';
-  showAlert(alerta, 'success', '✅ Tarefa cadastrada com sucesso!');
+  limparFormTarefa();
+  showAlert(alerta, 'success', '✅ Tarefa cadastrada com sucesso! Status inicial: "A Fazer".');
 }
 
-// ========== KANBAN ==========
+function limparFormTarefa() {
+  document.getElementById('t-desc').value      = '';
+  document.getElementById('t-setor').value     = '';
+  document.getElementById('t-prioridade').value = '';
+  document.getElementById('t-usuario').value    = '';
+}
+
+// ═══════════════════════════════════════
+// KANBAN
+// ═══════════════════════════════════════
 function renderKanban() {
-  const tarefas = getTarefas();
+  const tarefas  = getTarefas();
   const usuarios = getUsuarios();
   const cols = { 'a fazer': 'col-afazer', 'fazendo': 'col-fazendo', 'pronto': 'col-pronto' };
 
-  Object.values(cols).forEach(id => { document.getElementById(id).innerHTML = ''; });
+  // Limpar colunas
+  ['col-afazer', 'col-fazendo', 'col-pronto'].forEach(id => {
+    document.getElementById(id).innerHTML = '';
+  });
+
+  // Stats
+  const counts = { 'a fazer': 0, 'fazendo': 0, 'pronto': 0 };
+  tarefas.forEach(t => { counts[t.status] = (counts[t.status] || 0) + 1; });
+
+  document.getElementById('stat-afazer').textContent  = counts['a fazer'];
+  document.getElementById('stat-fazendo').textContent = counts['fazendo'];
+  document.getElementById('stat-pronto').textContent  = counts['pronto'];
+  document.getElementById('badge-afazer').textContent  = counts['a fazer'];
+  document.getElementById('badge-fazendo').textContent = counts['fazendo'];
+  document.getElementById('badge-pronto').textContent  = counts['pronto'];
 
   if (tarefas.length === 0) {
-    document.getElementById('col-afazer').innerHTML = '<p class="empty-msg">Nenhuma tarefa.</p>';
+    document.getElementById('col-afazer').innerHTML = '<p class="empty-col">Nenhuma tarefa cadastrada.</p>';
     return;
   }
 
   tarefas.forEach(t => {
-    const colId = cols[t.status] || 'col-afazer';
+    const colId   = cols[t.status] || 'col-afazer';
     const usuario = usuarios.find(u => u.id === t.id_usuario);
-    const nomeUsuario = usuario ? usuario.nome : 'Desconhecido';
+    const nome    = usuario ? escHtml(usuario.nome) : '<em>Não encontrado</em>';
+
     const div = document.createElement('div');
     div.className = `task-card ${t.prioridade}`;
     div.innerHTML = `
-      <div class="desc">${t.descricao}</div>
-      <p>🏢 <strong>Setor:</strong> ${t.setor}</p>
-      <p>👤 <strong>Usuário:</strong> ${nomeUsuario}</p>
-      <p>📅 <strong>Data:</strong> ${t.data}</p>
-      <p><span class="badge badge-${t.prioridade}">Prioridade: ${t.prioridade.charAt(0).toUpperCase()+t.prioridade.slice(1)}</span></p>
-      <div class="actions">
+      <div class="task-desc">${escHtml(t.descricao)}</div>
+      <div class="task-meta">🏢 <strong>Setor:</strong> ${escHtml(t.setor)}</div>
+      <div class="task-meta">👤 <strong>Responsável:</strong> ${nome}</div>
+      <div class="task-meta">📅 <strong>Cadastro:</strong> ${t.data_cadastro}</div>
+      <div class="task-meta" style="margin-top:6px">
+        <span class="badge badge-${t.prioridade}">Prioridade: ${capitalize(t.prioridade)}</span>
+      </div>
+      <div class="task-actions">
         <select onchange="mudarStatus(${t.id}, this.value)" title="Alterar status">
-          <option value="a fazer" ${t.status==='a fazer'?'selected':''}>A Fazer</option>
-          <option value="fazendo" ${t.status==='fazendo'?'selected':''}>Fazendo</option>
-          <option value="pronto" ${t.status==='pronto'?'selected':''}>Pronto</option>
+          <option value="a fazer"  ${t.status === 'a fazer'  ? 'selected' : ''}>📌 A Fazer</option>
+          <option value="fazendo"  ${t.status === 'fazendo'  ? 'selected' : ''}>⚙️ Fazendo</option>
+          <option value="pronto"   ${t.status === 'pronto'   ? 'selected' : ''}>✅ Pronto</option>
         </select>
-        <button class="btn btn-edit" onclick="abrirEditar(${t.id})">✏️ Editar</button>
-        <button class="btn btn-danger" onclick="abrirConfirm(${t.id})">🗑 Excluir</button>
+        <button class="btn btn-edit btn-sm"   onclick="abrirEditar(${t.id})">✏️ Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="abrirConfirm(${t.id})">🗑</button>
       </div>`;
     document.getElementById(colId).appendChild(div);
   });
@@ -386,44 +935,61 @@ function mudarStatus(id, novoStatus) {
   if (t) { t.status = novoStatus; setTarefas(tarefas); renderKanban(); }
 }
 
-// ========== EDITAR ==========
+// ═══════════════════════════════════════
+// EDITAR
+// ═══════════════════════════════════════
 function abrirEditar(id) {
   const t = getTarefas().find(x => x.id === id);
   if (!t) return;
-  document.getElementById('edit-id').value = t.id;
-  document.getElementById('edit-desc').value = t.descricao;
-  document.getElementById('edit-setor').value = t.setor;
-  document.getElementById('edit-prioridade').value = t.prioridade;
-  document.getElementById('edit-status').value = t.status;
+
+  document.getElementById('edit-id').value          = t.id;
+  document.getElementById('edit-desc').value         = t.descricao;
+  document.getElementById('edit-setor').value        = t.setor;
+  document.getElementById('edit-prioridade').value   = t.prioridade;
+  document.getElementById('edit-status').value       = t.status;
+  clearAlert('alert-editar');
+
   preencherSelectUsuarios('edit-usuario');
   document.getElementById('edit-usuario').value = t.id_usuario;
+
   document.getElementById('modal-editar').classList.add('open');
 }
 
-function fecharModal() { document.getElementById('modal-editar').classList.remove('open'); }
+function fecharModal() {
+  document.getElementById('modal-editar').classList.remove('open');
+}
 
 function salvarEdicao() {
-  const id = parseInt(document.getElementById('edit-id').value);
-  const desc = document.getElementById('edit-desc').value.trim();
-  const setor = document.getElementById('edit-setor').value.trim();
+  const id         = parseInt(document.getElementById('edit-id').value);
+  const desc       = document.getElementById('edit-desc').value.trim();
+  const setor      = document.getElementById('edit-setor').value.trim();
   const prioridade = document.getElementById('edit-prioridade').value;
-  const status = document.getElementById('edit-status').value;
+  const status     = document.getElementById('edit-status').value;
   const id_usuario = parseInt(document.getElementById('edit-usuario').value);
 
-  if (!desc || !setor || !prioridade || !id_usuario) { alert('Preencha todos os campos.'); return; }
+  if (!desc || !setor || !prioridade || !id_usuario)
+    return showAlert('alert-editar', 'error', '⚠ Preencha todos os campos obrigatórios.');
 
   const tarefas = getTarefas();
   const t = tarefas.find(x => x.id === id);
-  if (t) { t.descricao = desc; t.setor = setor; t.prioridade = prioridade; t.status = status; t.id_usuario = id_usuario; }
+  if (t) {
+    t.descricao  = desc;
+    t.setor      = setor;
+    t.prioridade = prioridade;
+    t.status     = status;
+    t.id_usuario = id_usuario;
+  }
   setTarefas(tarefas);
   fecharModal();
   renderKanban();
 }
 
-// ========== EXCLUIR ==========
+// ═══════════════════════════════════════
+// EXCLUIR TAREFA
+// ═══════════════════════════════════════
 let tarefaParaExcluir = null;
-function abrirConfirm(id) { tarefaParaExcluir = id; document.getElementById('confirm-del').classList.add('open'); }
-function fecharConfirm() { tarefaParaExcluir = null; document.getElementById('confirm-del').classList.remove('open'); }
+function abrirConfirm(id)    { tarefaParaExcluir = id; document.getElementById('confirm-del').classList.add('open'); }
+function fecharConfirm()     { tarefaParaExcluir = null; document.getElementById('confirm-del').classList.remove('open'); }
 function confirmarExclusao() {
   if (tarefaParaExcluir) {
     setTarefas(getTarefas().filter(t => t.id !== tarefaParaExcluir));
@@ -432,14 +998,49 @@ function confirmarExclusao() {
   }
 }
 
-// ========== ALERT ==========
-function showAlert(el, tipo, msg) {
-  el.className = 'alert ' + tipo;
+// ═══════════════════════════════════════
+// UTILITÁRIOS
+// ═══════════════════════════════════════
+function showAlert(id, tipo, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `alert ${tipo} show`;
   el.textContent = msg;
-  setTimeout(() => { el.className = 'alert'; }, 4000);
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.className = 'alert'; }, 5000);
 }
 
-// ========== INIT ==========
+function clearAlert(id) {
+  const el = document.getElementById(id);
+  if (el) el.className = 'alert';
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Fechar modais ao clicar fora
+document.getElementById('modal-editar').addEventListener('click', function(e) {
+  if (e.target === this) fecharModal();
+});
+document.getElementById('confirm-del').addEventListener('click', function(e) {
+  if (e.target === this) fecharConfirm();
+});
+document.getElementById('confirm-del-user').addEventListener('click', function(e) {
+  if (e.target === this) fecharConfirmUser();
+});
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
 renderKanban();
 </script>
 </body>
